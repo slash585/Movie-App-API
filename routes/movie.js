@@ -6,14 +6,26 @@ const Movie = require('../models/Movie');
 const { json } = require('body-parser');
 
 
-router.get('/',(req,res)=>{
-  const promise = Movie.find({});
+router.get('/', (req, res) => {
+	const promise = Movie.aggregate([
+		{
+			$lookup: {
+				from: 'directors',
+				localField: 'directorId',
+				foreignField: '_id',
+				as: 'director'
+			}
+		},
+		{
+			$unwind: '$director'
+		}
+	]);
 
-  promise.then((data)=>{
-    res.json(data)
-  }).catch((err)=>{
-    res.json(err);
-  })
+	promise.then((data) => {
+		res.json(data);
+	}).catch((err) => {
+		res.json(err);
+	})
 });
 
 
